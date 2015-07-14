@@ -1,4 +1,5 @@
 from splunklib.results import ResultsReader
+import json
 
 class KVStoreClient:
     def __init__(self, APPNAME, COLLECTION, LOOKUP, service):
@@ -44,13 +45,13 @@ class KVStoreClient:
             self.delete_key(entry['_key'])
 
     def delete_key(self, key):
-        self.service.request(path+'/'+key, method='DELETE', headers=self.headers, owner='nobody',app=self.APPNAME)
+        self.service.request(self.path+'/'+key, method='DELETE', headers=self.headers, owner='nobody',app=self.APPNAME)
 
 ### ADD NEW ###
 
     def add(self,content):
-        newKey = self.service.request(path, method='POST', headers=self.headers, owner='nobody',app=self.APPNAME, body=json.dumps(content))
+        newKey = self.service.request(self.path, method='POST', headers=self.headers, owner='nobody',app=self.APPNAME, body=json.dumps(content))
         return json.loads(newKey['body'].read())['_key']
 
     def update(self, key, content):
-        updated = self.service.request(path + "/%s" % (key), method='POST', headers=self.headers, owner='nobody', app=self.APPNAME, body=json.jumps(content))
+        updated = self.service.request(self.path + "/%s" % (key), method='POST', headers=self.headers, owner='nobody', app=self.APPNAME, body=json.jumps(content))

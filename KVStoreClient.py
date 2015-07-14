@@ -21,7 +21,7 @@ class KVStoreClient:
     def get_by_field(self, field, value):
         events = []
 
-        allByField = self.service.jobs.create("|inputlookup %s | search %s=%s" % (self.LOOKUP, field, value), **{"exec_mode":"blocking"})
+        allByField = self.service.jobs.create("|inputlookup %s | search %s=%s" % (self.LOOKUP, field, str(value)), **{"exec_mode":"blocking"})
         allByField = allByField.results(count=0)
 
         for entry in ResultsReader(allByField):
@@ -43,6 +43,8 @@ class KVStoreClient:
 
         for entry in entries:
             self.delete_key(entry['_key'])
+
+        return entries
 
     def delete_key(self, key):
         self.service.request(self.path+'/'+key, method='DELETE', headers=self.headers, owner='nobody',app=self.APPNAME)

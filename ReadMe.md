@@ -19,7 +19,7 @@ If running inside a search command (StreamingCommand, GeneratingCommand, Reporti
 
 If running separately:
 
-`kv = KVStoreClient(appname,collection,lookup, splunklib.Client(...))`
+`kv = KVStoreClient(appname,collection,lookup, splunklib.client.connect(...))`
 
 ### Get
 `kv.get_all()`

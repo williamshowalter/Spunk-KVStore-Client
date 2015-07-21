@@ -16,19 +16,17 @@ class KVStoreClient:
 
         return rData
 
-### GET BY field ###
-
     def get_by_field(self, field, value):
-        events = []
+        records = []
 
         allByField = self.service.jobs.create("|inputlookup %s | search %s=%s" % (self.LOOKUP, field, str(value)), **{"exec_mode":"blocking"})
         allByField = allByField.results(count=0)
 
-        for entry in ResultsReader(allByField):
-            if isinstance (entry,dict):
-                events.append(entry)
+        for record in ResultsReader(allByField):
+            if isinstance (record,dict):
+                records.append(record)
 
-        return events
+        return records
 
     def get_by_key(self, key):
         allByKey = self.service.jobs.create("|inputlookup %s | rename _key AS key | search key=%s" % (self.LOOKUP, key),**{"exec_mode":"blocking"})
@@ -36,24 +34,22 @@ class KVStoreClient:
 
         return next((record for record in allByKey), None)
 
-### DELETE BY field ###
-
     def delete_by_field(self, field, value):
-        entries = self.get_by_field(field, value)
+        records = self.get_by_field(field, value)
 
-        for entry in entries:
-            self.delete_key(entry['_key'])
+        for record in records:
+            self.delete_key(record['_key'])
 
-        return entries
+        return records
 
     def delete_key(self, key):
         self.service.request(self.path+'/'+key, method='DELETE', headers=self.headers, owner='nobody',app=self.APPNAME)
 
-### ADD NEW ###
-
     def add(self,content):
-        newKey = self.service.request(self.path, method='POST', headers=self.headers, owner='nobody',app=self.APPNAME, body=json.dumps(content))
+        newKey = self.service.request(self.path, method='POST', headers=self.headers, \
+            owner='nobody',app=self.APPNAME, body=json.dumps(content))
         return json.loads(newKey['body'].read())['_key']
 
     def update(self, key, content):
-        updated = self.service.request(self.path + "/%s" % (key), method='POST', headers=self.headers, owner='nobody', app=self.APPNAME, body=json.jumps(content))
+        updated = self.service.request(self.path + "/%s" % (key), method='POST', headers=self.headers, \
+            owner='nobody', app=self.APPNAME, body=json.jumps(content))
